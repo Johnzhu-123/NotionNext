@@ -61,7 +61,7 @@ const authMiddleware = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
       // 2) 如果是Tenant路由, 需要登录
       if (isTenantRoute(req)) {
         if (!userId) {
-          const url = new URL('/sign-in', req.url)
+          const url = new URL('/auth/sign-in', req.url)
           url.searchParams.set('redirectTo', req.url)
           return NextResponse.redirect(url)
         }
@@ -79,7 +79,7 @@ const authMiddleware = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
       // 4) 除上述外, 所有路由都需要登录
       if (!userId) {
-        const url = new URL('/sign-in', req.url)
+        const url = new URL('/auth/sign-in', req.url)
         url.searchParams.set('redirectTo', req.url)
         return NextResponse.redirect(url)
       }
