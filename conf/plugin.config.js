@@ -20,11 +20,11 @@ module.exports = {
   // AI 文章摘要生成 @see https://docs_s.tianli0.top/
   TianliGPT_CSS:
     process.env.NEXT_PUBLIC_TIANLI_GPT_CSS ||
-    'https://jsd.onmicrosoft.cn/gh/zhheo/Post-Abstract-AI@0.15.2/tianli_gpt.css',
+    'https://cdn1.tianli0.top/gh/zhheo/Post-Abstract-AI@0.15.2/tianli_gpt.css',
   TianliGPT_JS:
     process.env.NEXT_PUBLIC_TIANLI_GPT_JS ||
-    'https://www.seeyjys.eu.org/js/custom.js',
-  TianliGPT_KEY: process.env.NEXT_PUBLIC_TIANLI_GPT_KEY || 'SeeYjys',
+    'https://cdn1.tianli0.top/gh/zhheo/Post-Abstract-AI@0.15.2/tianli_gpt.js',
+  TianliGPT_KEY: process.env.NEXT_PUBLIC_TIANLI_GPT_KEY || '',
 
   // 邮件
   MAILCHIMP_LIST_ID: process.env.MAILCHIMP_LIST_ID || null, // 开启mailichimp邮件订阅 客户列表ID ，具体使用方法参阅文档
