@@ -18,12 +18,12 @@ const CONFIG = {
   HEO_HERO_BODY_REVERSE: false,
 
   // 英雄区(首页顶部大卡)
-  HEO_HERO_TITLE_1: '分享编程',
-  HEO_HERO_TITLE_2: '与思维认知',
-  HEO_HERO_TITLE_3: 'TANGLY1024.COM',
-  HEO_HERO_TITLE_4: '新版上线',
-  HEO_HERO_TITLE_5: 'NotionNext4.0 轻松定制主题',
-  HEO_HERO_TITLE_LINK: 'https://seeyjys.eu.org',
+  HEO_HERO_TITLE_1: '为后来人铺路',
+  HEO_HERO_TITLE_2: '为奋进者存温',
+  HEO_HERO_TITLE_3: 'seeyjys.eu.org',
+  HEO_HERO_TITLE_4: 'LINUX DO',
+  HEO_HERO_TITLE_5: '我们的目标是星辰大海',
+  HEO_HERO_TITLE_LINK: 'https://linux.do',
   // 英雄区遮罩文字
   HEO_HERO_COVER_TITLE: '随便逛逛',
 
@@ -120,7 +120,7 @@ const CONFIG = {
   HEO_SOCIAL_CARD_TITLE_1: '交流频道',
   HEO_SOCIAL_CARD_TITLE_2: '加入我们的社群讨论分享',
   HEO_SOCIAL_CARD_TITLE_3: '点击加入社群',
-  HEO_SOCIAL_CARD_URL: 'https://docs.tangly1024.com/article/how-to-question',
+  HEO_SOCIAL_CARD_URL: 'https://linux.do',
 
   // 底部统计面板文案
   HEO_POST_COUNT_TITLE: '文章数:',
