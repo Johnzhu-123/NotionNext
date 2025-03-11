@@ -10,6 +10,8 @@ import RandomPostButton from './RandomPostButton'
 import ReadingProgress from './ReadingProgress'
 import SearchButton from './SearchButton'
 import SlideOver from './SlideOver'
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+
 
 /**
  * 页头：顶部导航
@@ -175,6 +177,19 @@ const Header = props => {
               </div>
             )}
             <ReadingProgress />
+
+            {/* 在这里插入 Clerk 登录相关按钮 */}
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="ml-2 px-3 py-1 bg-blue-500 text-white rounded whitespace-nowrap">
+                  登录
+                </button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
 
             {/* 移动端菜单按钮 */}
             <div

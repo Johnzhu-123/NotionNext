@@ -1,18 +1,22 @@
+// middleware.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { checkStrIsNotionId, getLastPartOfUrl } from '@/lib/utils'
 import { idToUuid } from 'notion-utils'
 import BLOG from './blog.config'
 
-/**
- * Clerk 身份验证中间件
+/** 
+ * 1) 只匹配所有非静态资源请求
+ * 2) 其他 (/_next, .js, .css 等文件) 被排除 
  */
 export const config = {
-  // 这里设置白名单，防止静态资源被拦截
-  matcher: ['/((?!.*\\..*|_next|/sign-in|/auth).*)', '/', '/(api|trpc)(.*)']
+  matcher: [
+    // 匹配所有非静态资源的请求
+    '/((?!_next|.*\\..*).*)'
+  ]
 }
 
-// 限制登录访问的路由
+/** 已有的Tenant匹配 */
 const isTenantRoute = createRouteMatcher([
   '/user/organization-selector(.*)',
   '/user/orgid/(.*)',
@@ -20,65 +24,52 @@ const isTenantRoute = createRouteMatcher([
   '/dashboard/(.*)'
 ])
 
-// 限制权限访问的路由
+/** 已有的Admin匹配 */
 const isTenantAdminRoute = createRouteMatcher([
   '/admin/(.*)/memberships',
   '/admin/(.*)/domain'
 ])
 
-/**
- * 没有配置权限相关功能的返回
- * @param req
- * @param ev
- * @returns
- */
-// eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-const noAuthMiddleware = async (req: NextRequest, ev: any) => {
-  // 如果没有配置 Clerk 相关环境变量，返回一个默认响应或者继续处理请求
-  if (BLOG['UUID_REDIRECT']) {
-    let redirectJson: Record<string, string> = {}
-    try {
-      const response = await fetch(`${req.nextUrl.origin}/redirect.json`)
-      if (response.ok) {
-        redirectJson = (await response.json()) as Record<string, string>
-      }
-    } catch (err) {
-      console.error('Error fetching static file:', err)
-    }
-    let lastPart = getLastPartOfUrl(req.nextUrl.pathname) as string
-    if (checkStrIsNotionId(lastPart)) {
-      lastPart = idToUuid(lastPart)
-    }
-    if (lastPart && redirectJson[lastPart]) {
-      const redirectToUrl = req.nextUrl.clone()
-      redirectToUrl.pathname = '/' + redirectJson[lastPart]
-      console.log(
-        `redirect from ${req.nextUrl.pathname} to ${redirectToUrl.pathname}`
-      )
-      return NextResponse.redirect(redirectToUrl, 308)
-    }
-  }
+/** 新增: 公共白名单 */
+const isPublicPath = createRouteMatcher([
+  // 登录注册相关
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/auth(.*)',
+  // API 接口
+  '/api(.*)',
+  // 如果你想公开首页或其它页面, 可在此处添加, 例如:
+  // '/',
+  // '/about(.*)',
+])
+
+/** 如果没有配置 ClerkKey 的处理 */
+const noAuthMiddleware = async (req: NextRequest) => {
+  // 无 Clerk Key 就不做登录拦截
   return NextResponse.next()
 }
-/**
- * 鉴权中间件
- */
+
 const authMiddleware = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   ? clerkMiddleware(async (auth, req) => {
       const { userId } = auth()
-      // 处理 /dashboard 路由的登录保护
+
+      // 1) 如果是公共路径, 直接放行
+      if (isPublicPath(req)) {
+        return NextResponse.next()
+      }
+
+      // 2) 如果是Tenant路由, 需要登录
       if (isTenantRoute(req)) {
         if (!userId) {
-          // 用户未登录，重定向到 /sign-in
-          const url = new URL('/sign-in', req.url)
-          url.searchParams.set('redirectTo', req.url) // 保存重定向目标
+          const url = new URL('/auth/sign-in', req.url)
+          url.searchParams.set('redirectTo', req.url)
           return NextResponse.redirect(url)
         }
       }
 
-      // 处理管理员相关权限保护
+      // 3) 如果是Admin路由, 需要特定权限
       if (isTenantAdminRoute(req)) {
-        auth().protect(has => {
+        auth().protect((has) => {
           return (
             has({ permission: 'org:sys_memberships:manage' }) ||
             has({ permission: 'org:sys_domains_manage' })
@@ -86,7 +77,14 @@ const authMiddleware = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
         })
       }
 
-      // 默认继续处理请求
+      // 4) 除上述外, 所有路由都需要登录
+      if (!userId) {
+        const url = new URL('/auth/sign-in', req.url)
+        url.searchParams.set('redirectTo', req.url)
+        return NextResponse.redirect(url)
+      }
+
+      // 已登录, 放行
       return NextResponse.next()
     })
   : noAuthMiddleware
