@@ -20,7 +20,7 @@ const CONFIG = {
   // 英雄区(首页顶部大卡)
   HEO_HERO_TITLE_1: '行到水穷处',
   HEO_HERO_TITLE_2: '坐看云起时',
-  HEO_HERO_TITLE_3: 'seeyjy.eu.org',
+  HEO_HERO_TITLE_3: 'seeyjys.eu.org',
   HEO_HERO_TITLE_4: 'LINUX DO',
   HEO_HERO_TITLE_5: '我们的目标是星辰大海',
   HEO_HERO_TITLE_LINK: 'https://seeyjys.eu.org',
