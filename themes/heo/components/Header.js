@@ -188,7 +188,7 @@ const Header = props => {
                   <SignInButton mode='modal'>
                     <button
                       type='button'
-                      className='rounded-lg bg-gray-800 px-3 py-2 text-sm text-white hover:bg-gray-900'>
+                      className='flex-shrink-0 whitespace-nowrap rounded-lg bg-gray-800 px-3 py-2 text-sm leading-5 text-white hover:bg-gray-900'>
                       {locale.COMMON.SIGN_IN}
                     </button>
                   </SignInButton>
