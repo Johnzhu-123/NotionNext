@@ -37,6 +37,13 @@ const isPublicRoute = createRouteMatcher([
 // API 由各自的 handler 处理权限，避免拦截 Clerk/业务 API 请求
 const isApiRoute = createRouteMatcher(['/api(.*)', '/trpc(.*)'])
 
+// RSS 已关闭，相关旧入口统一返回 404
+const isDisabledRssRoute = createRouteMatcher([
+  '/feed(.*)',
+  '/rss(.*)',
+  '/rss.xml'
+])
+
 // 所有内容页（文章、首页、搜索、分类、RSS 等）都需要登录
 const isProtectedContentRoute = (req: NextRequest) =>
   !isPublicRoute(req) && !isApiRoute(req)
@@ -86,6 +93,10 @@ const noAuthMiddleware = async (req: NextRequest, ev: any) => {
  */
 const authMiddleware = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   ? clerkMiddleware((auth, req) => {
+      if (isDisabledRssRoute(req)) {
+        return new NextResponse('Not Found', { status: 404 })
+      }
+
       const { userId } = auth()
       // 处理全站内容的登录保护
       if (isProtectedContentRoute(req) && !userId) {

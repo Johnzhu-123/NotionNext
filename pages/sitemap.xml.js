@@ -67,12 +67,6 @@ function generateLocalesSitemap(link, allPages, locale) {
       priority: '0.7'
     },
     {
-      loc: `${link}${locale}/rss/feed.xml`,
-      lastmod: dateNow,
-      changefreq: 'daily',
-      priority: '0.7'
-    },
-    {
       loc: `${link}${locale}/search`,
       lastmod: dateNow,
       changefreq: 'daily',
