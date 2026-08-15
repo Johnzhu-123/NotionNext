@@ -44,6 +44,7 @@ import CONFIG from './config'
 import { Style } from './style'
 import AISummary from '@/components/AISummary'
 import ArticleExpirationNotice from '@/components/ArticleExpirationNotice'
+import { SignIn, SignUp } from '@clerk/nextjs'
 
 /**
  * 基础布局 采用上中下布局，移动端使用顶部侧边导航栏
@@ -500,6 +501,26 @@ const LayoutTagIndex = props => {
   )
 }
 
+const LayoutSignIn = () => {
+  const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+  return (
+    <main className='flex flex-grow justify-center px-5 py-16'>
+      {enableClerk && <SignIn />}
+    </main>
+  )
+}
+
+const LayoutSignUp = () => {
+  const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+  return (
+    <main className='flex flex-grow justify-center px-5 py-16'>
+      {enableClerk && <SignUp />}
+    </main>
+  )
+}
+
 export {
   Layout404,
   LayoutArchive,
@@ -508,6 +529,8 @@ export {
   LayoutIndex,
   LayoutPostList,
   LayoutSearch,
+  LayoutSignIn,
+  LayoutSignUp,
   LayoutSlug,
   LayoutTagIndex,
   CONFIG as THEME_CONFIG

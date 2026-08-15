@@ -1,5 +1,8 @@
+import DashboardButton from '@/components/ui/dashboard/DashboardButton'
 import { siteConfig } from '@/lib/config'
+import { useGlobal } from '@/lib/global'
 import { isBrowser } from '@/lib/utils'
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import throttle from 'lodash.throttle'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -24,6 +27,8 @@ const Header = props => {
 
   const router = useRouter()
   const slideOverRef = useRef()
+  const { locale } = useGlobal()
+  const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
   const toggleMenuOpen = () => {
     slideOverRef?.current?.toggleSlideOvers()
@@ -175,6 +180,25 @@ const Header = props => {
               </div>
             )}
             <ReadingProgress />
+
+            {/* 登录相关 */}
+            {enableClerk && (
+              <>
+                <SignedOut>
+                  <SignInButton mode='modal'>
+                    <button
+                      type='button'
+                      className='rounded-lg bg-gray-800 px-3 py-2 text-sm text-white hover:bg-gray-900'>
+                      {locale.COMMON.SIGN_IN}
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton />
+                  <DashboardButton className='hidden md:block' />
+                </SignedIn>
+              </>
+            )}
 
             {/* 移动端菜单按钮 */}
             <div
