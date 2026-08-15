@@ -16,8 +16,14 @@ export const config = {
   ]
 }
 
-// 登录、邀请回调和必要的公开静态文件
+// 首页、文章列表、登录邀请回调和必要的公开静态文件
 const isPublicRoute = createRouteMatcher([
+  '/',
+  '/archive(.*)',
+  '/category(.*)',
+  '/tag(.*)',
+  '/page(.*)',
+  '/search(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/auth(.*)',
