@@ -10,7 +10,7 @@ import BLOG from './blog.config'
 export const config = {
   // 保护所有内容页面，同时跳过 Next 内部资源和常见静态资源
   matcher: [
-    '/((?!_next|.*\\.(css|js|map|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$).*)',
+    '/((?!_next|.*\\.css$|.*\\.js$|.*\\.map$|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$|.*\\.webp$|.*\\.woff$|.*\\.woff2$|.*\\.ttf$|.*\\.eot$).*)',
     '/(api|trpc)(.*)'
   ]
 }
