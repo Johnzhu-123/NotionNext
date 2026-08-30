@@ -11,7 +11,8 @@ import DashboardHeader from '@/components/ui/dashboard/DashboardHeader'
 import { siteConfig } from '@/lib/config'
 import { useGlobal } from '@/lib/global'
 import { isBrowser } from '@/lib/utils'
-import { SignIn, SignUp } from '@clerk/nextjs'
+import InvitationGate from '@/components/InvitationGate'
+import { SignIn } from '@clerk/nextjs'
 import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
@@ -514,17 +515,13 @@ const LayoutSignIn = props => {
  */
 const LayoutSignUp = props => {
   const { post } = props
-  const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
   return (
     <>
       <div className='grow mt-20'>
-        {/* clerk预置表单 */}
-        {enableClerk && (
-          <div className='flex justify-center py-6'>
-            <SignUp />
-          </div>
-        )}
+        <div className='flex justify-center py-6'>
+          <InvitationGate {...props} />
+        </div>
         <div id='article-wrapper'>
           <NotionPage post={post} />
         </div>

@@ -46,6 +46,7 @@
     "health-check": "node scripts/health-check.js",
     "validate": "npm run health-check",
     "final-validation": "node scripts/final-validation.js",
+    "gen-invites": "node scripts/generate-invites.js",
     "postinstall": "patch-package"
   },
   "dependencies": {

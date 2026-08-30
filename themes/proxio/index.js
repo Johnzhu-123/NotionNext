@@ -30,7 +30,8 @@ import DashboardBody from '@/components/ui/dashboard/DashboardBody'
 import DashboardHeader from '@/components/ui/dashboard/DashboardHeader'
 import { useGlobal } from '@/lib/global'
 import { loadWowJS } from '@/lib/plugins/wow'
-import { SignIn, SignUp } from '@clerk/nextjs'
+import InvitationGate from '@/components/InvitationGate'
+import { SignIn } from '@clerk/nextjs'
 import SmartLink from '@/components/SmartLink'
 import { ArticleLock } from './components/ArticleLock'
 import { Banner } from './components/Banner'
@@ -527,7 +528,7 @@ const LayoutSignUp = props => {
                 {/* clerk预置表单 */}
                 {enableClerk && (
                     <div className='flex justify-center py-6'>
-                        <SignUp />
+                        <InvitationGate {...props} />
                     </div>
                 )}
 

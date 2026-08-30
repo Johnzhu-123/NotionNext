@@ -42,6 +42,7 @@ const BLOG = {
   ...require('./conf/ad.config'), // 广告营收插件
   ...require('./conf/plugin.config'), // 其他第三方插件 algolia全文索引
   ...require('./conf/performance.config'), // 性能优化配置
+  ...require('./conf/invitation.config'), // 注册邀请码配置
 
   // 高级用法
   ...require('./conf/layout-map.config'), // 路由与布局映射自定义，例如自定义特定路由的页面布局

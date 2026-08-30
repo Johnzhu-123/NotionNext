@@ -44,7 +44,8 @@ import CONFIG from './config'
 import { Style } from './style'
 import AISummary from '@/components/AISummary'
 import ArticleExpirationNotice from '@/components/ArticleExpirationNotice'
-import { SignIn, SignUp } from '@clerk/nextjs'
+import InvitationGate from '@/components/InvitationGate'
+import { SignIn } from '@clerk/nextjs'
 
 /**
  * 基础布局 采用上中下布局，移动端使用顶部侧边导航栏
@@ -511,12 +512,10 @@ const LayoutSignIn = () => {
   )
 }
 
-const LayoutSignUp = () => {
-  const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-
+const LayoutSignUp = props => {
   return (
     <main className='flex flex-grow justify-center px-5 py-16'>
-      {enableClerk && <SignUp />}
+      <InvitationGate {...props} />
     </main>
   )
 }
