@@ -1,13 +1,17 @@
 /**
- * 批量生成注册邀请码工具
+ * 批量生成注册邀请码与 LDstore 自动发卡卡密工具
  * 使用方式：
  *   node scripts/generate-invites.js 100
  *   node scripts/generate-invites.js 500 --prefix=YJYS --out=invites.txt
+ *   npm run gen-invites 50
  */
 
 const fs = require('fs')
 const path = require('path')
-const crypto = require('crypto')
+const {
+  generateInviteCode,
+  verifyInviteCode
+} = require('../lib/invitation.js')
 
 // 读取配置
 let BLOG = {}
@@ -17,53 +21,19 @@ try {
   // ignore
 }
 
-const SAFE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
-
-function bufferToSafeString(buffer, length) {
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    const byte = buffer[i % buffer.length]
-    result += SAFE_ALPHABET[byte % SAFE_ALPHABET.length]
-  }
-  return result
-}
-
-function computeSignature(payload, secret, sigLength = 4) {
-  const hmac = crypto.createHmac('sha256', secret || 'notionnext-secret-key-yjys-2026')
-  hmac.update(payload.toUpperCase())
-  const digest = hmac.digest()
-  return bufferToSafeString(digest, sigLength)
-}
-
-function generateInviteCode(options = {}) {
-  const prefix = (options.prefix || BLOG.INVITATION_CODE_PREFIX || 'YJYS')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
-  const secret =
-    options.secret ||
-    process.env.INVITATION_SECRET ||
-    BLOG.INVITATION_SECRET ||
-    'notionnext-secret-key-yjys-2026'
-  const payloadLength = options.payloadLength || 4
-  const sigLength = options.sigLength || 4
-
-  const randomBytes = crypto.randomBytes(payloadLength)
-  const payload = bufferToSafeString(randomBytes, payloadLength)
-
-  const signSource = `${prefix}-${payload}`
-  const signature = computeSignature(signSource, secret, sigLength)
-
-  return `${prefix}-${payload}-${signature}`
-}
-
 function generateBatch(count = 20, options = {}) {
   const codeSet = new Set()
-  const maxAttempts = count * 10
+  const maxAttempts = count * 15
   let attempts = 0
 
   while (codeSet.size < count && attempts < maxAttempts) {
     attempts++
-    codeSet.add(generateInviteCode(options))
+    const code = generateInviteCode(options)
+    // 即时验真自测，确保生成的每一条码都能通过检验
+    const check = verifyInviteCode(code, options)
+    if (check.valid) {
+      codeSet.add(code)
+    }
   }
 
   return Array.from(codeSet)
@@ -73,8 +43,14 @@ function generateBatch(count = 20, options = {}) {
 function parseArgs() {
   const args = process.argv.slice(2)
   let count = 20
-  let prefix = BLOG.INVITATION_CODE_PREFIX || 'YJYS'
-  let secret = process.env.INVITATION_SECRET || BLOG.INVITATION_SECRET || 'notionnext-secret-key-yjys-2026'
+  let prefix =
+    process.env.NEXT_PUBLIC_INVITATION_CODE_PREFIX ||
+    BLOG.INVITATION_CODE_PREFIX ||
+    'YJYS'
+  let secret =
+    process.env.INVITATION_SECRET ||
+    BLOG.INVITATION_SECRET ||
+    'notionnext-secret-key-yjys-2026'
   let outFile = ''
 
   for (const arg of args) {
@@ -96,11 +72,12 @@ function main() {
   const { count, prefix, secret, outFile } = parseArgs()
 
   console.log(`\n==============================================`)
-  console.log(`🎟️  NotionNext 算法签名批量邀请码生成器`)
+  console.log(`🎟️  NotionNext x LDstore 注册邀请码批量生成器`)
   console.log(`==============================================`)
   console.log(`• 生成数量: ${count}`)
   console.log(`• 邀请码前缀: ${prefix}`)
   console.log(`• 签名密钥: ${secret.slice(0, 4)}****${secret.slice(-4)}`)
+  console.log(`• LDstore 单价: 99 LDC`)
   console.log(`==============================================\n`)
 
   const codes = generateBatch(count, { prefix, secret })
@@ -123,24 +100,20 @@ function main() {
     .replace(/[-:]/g, '')
     .replace('T', '-')
     .slice(0, 15)
-  const defaultFileName = `invites-${prefix}-${timestamp}.txt`
-  const targetPath = outFile || path.join(__dirname, '..', defaultFileName)
 
-  const fileContent = [
-    `# NotionNext 注册邀请码清单`,
-    `# 生成时间: ${now.toLocaleString()}`,
-    `# 数量: ${codes.length}`,
-    `# 前缀: ${prefix}`,
-    `# ----------------------------------------`,
-    ...codes,
-    ``
-  ].join('\n')
+  // 1. 生成便于直接复制粘贴进 LDstore 的纯文本卡密文件（每行一个，无注释干扰）
+  const ldstoreFileName = `ldstore-cards-${prefix}-${timestamp}.txt`
+  const ldstoreTargetPath = path.join(__dirname, '..', ldstoreFileName)
+  fs.writeFileSync(ldstoreTargetPath, codes.join('\n') + '\n', 'utf-8')
 
-  fs.writeFileSync(targetPath, fileContent, 'utf-8')
+  // 2. 如果指定了 --out，也保存到对应文件
+  if (outFile) {
+    fs.writeFileSync(outFile, codes.join('\n') + '\n', 'utf-8')
+  }
 
-  console.log(`\n✅ 成功生成 ${codes.length} 个唯一有效邀请码！`)
-  console.log(`📁 文件已保存至: ${targetPath}\n`)
+  console.log(`\n✅ 成功生成 ${codes.length} 个密码学唯一有效邀请码！`)
+  console.log(`🛒 LDstore 专用发卡卡密文件（全选复制即用）:`)
+  console.log(`   ${ldstoreTargetPath}\n`)
 }
 
 main()
-

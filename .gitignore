@@ -54,3 +54,4 @@ package-lock.json
 .notion-api-lock
 invites-*.txt
 invites*.txt
+ldstore-cards-*.txt
