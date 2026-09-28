@@ -43,7 +43,7 @@ export default function SideRight(props) {
       {/* 邀请注册门禁卡片（未登录用户专属引导） */}
       {enableClerk && (
         <SignedOut>
-          <div className='wow fadeInUp p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-purple-50/80 to-pink-50/70 dark:from-[#211f2c] dark:via-[#1e1c27] dark:to-[#1b1924] border border-indigo-100 dark:border-indigo-900/50 shadow-sm'>
+          <div className='p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-purple-50/80 to-pink-50/70 dark:from-[#211f2c] dark:via-[#1e1c27] dark:to-[#1b1924] border border-indigo-100 dark:border-indigo-900/50 shadow-sm'>
             <div className='flex items-center space-x-2.5 mb-2.5'>
               <div className='w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/30 shrink-0'>
                 <svg
