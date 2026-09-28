@@ -182,34 +182,23 @@ const Header = props => {
             )}
             <ReadingProgress />
 
-            {/* 登录与专属注册入口 */}
+            {/* 登录 / 注册 合二为一统一按钮 */}
             {enableClerk && (
               <>
                 <SignedOut>
-                  <div className='flex items-center space-x-1.5 sm:space-x-2'>
+                  <div className='flex-shrink-0 flex items-center rounded-xl bg-gray-100 hover:bg-gray-200/80 dark:bg-gray-800 dark:hover:bg-gray-700/80 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors p-0.5 sm:px-1'>
                     <SignInButton mode='modal'>
                       <button
                         type='button'
-                        className='flex-shrink-0 whitespace-nowrap rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm leading-5 font-medium text-gray-700 dark:text-gray-200 transition-colors'>
+                        className='px-2 py-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors whitespace-nowrap'>
                         {locale.COMMON.SIGN_IN || '登录'}
                       </button>
                     </SignInButton>
+                    <span className='text-gray-300 dark:text-gray-600 select-none'>/</span>
                     <Link
                       href='/sign-up'
-                      className='flex-shrink-0 whitespace-nowrap rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm leading-5 font-medium text-white shadow-sm shadow-indigo-600/20 transition-all flex items-center space-x-1'>
-                      <svg
-                        className='w-3.5 h-3.5 shrink-0 hidden sm:inline-block'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'>
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z'
-                        />
-                      </svg>
-                      <span>注册</span>
+                      className='px-2 py-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors whitespace-nowrap'>
+                      注册
                     </Link>
                   </div>
                 </SignedOut>
