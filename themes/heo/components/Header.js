@@ -4,6 +4,7 @@ import { useGlobal } from '@/lib/global'
 import { isBrowser } from '@/lib/utils'
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import throttle from 'lodash.throttle'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import DarkModeButton from './DarkModeButton'
@@ -170,8 +171,8 @@ const Header = props => {
             </div>
           </div>
 
-          {/* 右侧固定 */}
-          <div className='flex flex-shrink-0 justify-end items-center w-48'>
+          {/* 右侧固定操作区 */}
+          <div className='flex flex-shrink-0 justify-end items-center space-x-1.5 sm:space-x-2'>
             <RandomPostButton {...props} />
             <SearchButton {...props} />
             {!JSON.parse(siteConfig('THEME_SWITCH')) && (
@@ -181,17 +182,36 @@ const Header = props => {
             )}
             <ReadingProgress />
 
-            {/* 登录相关 */}
+            {/* 登录与专属注册入口 */}
             {enableClerk && (
               <>
                 <SignedOut>
-                  <SignInButton mode='modal'>
-                    <button
-                      type='button'
-                      className='flex-shrink-0 whitespace-nowrap rounded-lg bg-gray-800 px-3 py-2 text-sm leading-5 text-white hover:bg-gray-900'>
-                      {locale.COMMON.SIGN_IN}
-                    </button>
-                  </SignInButton>
+                  <div className='flex items-center space-x-1.5 sm:space-x-2'>
+                    <SignInButton mode='modal'>
+                      <button
+                        type='button'
+                        className='flex-shrink-0 whitespace-nowrap rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm leading-5 font-medium text-gray-700 dark:text-gray-200 transition-colors'>
+                        {locale.COMMON.SIGN_IN || '登录'}
+                      </button>
+                    </SignInButton>
+                    <Link
+                      href='/sign-up'
+                      className='flex-shrink-0 whitespace-nowrap rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm leading-5 font-medium text-white shadow-sm shadow-indigo-600/20 transition-all flex items-center space-x-1'>
+                      <svg
+                        className='w-3.5 h-3.5 shrink-0 hidden sm:inline-block'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'>
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth='2'
+                          d='M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z'
+                        />
+                      </svg>
+                      <span>注册</span>
+                    </Link>
+                  </div>
                 </SignedOut>
                 <SignedIn>
                   <UserButton />
