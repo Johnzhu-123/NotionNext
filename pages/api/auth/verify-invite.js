@@ -1,6 +1,9 @@
+if (typeof self === 'undefined') {
+  global.self = globalThis
+}
+
 import BLOG from '@/blog.config'
 import { verifyInviteCode } from '@/lib/invitation'
-import { redisClient } from '@/lib/cache/redis_cache'
 
 /**
  * 注册邀请码验证 API
@@ -60,31 +63,32 @@ export default async function handler(req, res) {
     const result = verifyInviteCode(code)
 
     if (result.valid) {
-      // 若使用算法码且配置了 Redis，校验是否已被兑换使用（一码一人防重复）
-      const hasRedis = !!(BLOG.REDIS_URL && typeof redisClient?.get === 'function')
-      if (hasRedis && result.type === 'algorithm' && result.code) {
+      // 若配置了 REDIS_URL，动态按需加载校验（避免未配置时加载 ioredis 引发 serverless 环境 self is not defined）
+      if (BLOG.REDIS_URL && result.type === 'algorithm' && result.code) {
         try {
-          const usedKey = `notion_used_invite:${result.code}`
-          const isUsed = await redisClient.get(usedKey)
-          if (isUsed) {
-            return res.status(400).json({
-              success: false,
-              verified: false,
-              needPurchase: true,
-              storeUrl,
-              priceLdc,
-              message: '该邀请码已被使用，请在 LDstore 购买新的专属邀请码'
-            })
+          const { redisClient } = await import('@/lib/cache/redis_cache')
+          if (typeof redisClient?.get === 'function') {
+            const usedKey = `notion_used_invite:${result.code}`
+            const isUsed = await redisClient.get(usedKey)
+            if (isUsed) {
+              return res.status(400).json({
+                success: false,
+                verified: false,
+                needPurchase: true,
+                storeUrl,
+                priceLdc,
+                message: '该邀请码已被使用，请在 LDstore 购买新的专属邀请码'
+              })
+            }
+            await redisClient.set(
+              usedKey,
+              JSON.stringify({ usedAt: Date.now() }),
+              'EX',
+              180 * 86400
+            )
           }
-          // 标记已使用，保留 180 天
-          await redisClient.set(
-            usedKey,
-            JSON.stringify({ usedAt: Date.now() }),
-            'EX',
-            180 * 86400
-          )
         } catch (e) {
-          console.warn('Redis 校验邀请码使用状态异常，已自动降级通过:', e)
+          console.warn('Redis 校验邀请码状态异常，已自动降级通过:', e)
         }
       }
 
