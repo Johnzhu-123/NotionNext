@@ -25,7 +25,8 @@ module.exports = {
 
   // LDstore 购买邀请码的跳转链接（可在 Vercel 环境变量中配置上架后的商品直达链接）
   INVITATION_STORE_URL:
-    process.env.NEXT_PUBLIC_INVITATION_STORE_URL || 'https://ldcstore.com',
+    process.env.NEXT_PUBLIC_INVITATION_STORE_URL ||
+    'https://ldcstore.com/goods/12974',
 
   // LDstore 邀请码定价（LDC 积分）
   INVITATION_PRICE_LDC:
