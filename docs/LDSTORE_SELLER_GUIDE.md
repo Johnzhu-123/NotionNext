@@ -93,11 +93,11 @@ npm run gen-invites 100
 ## 🔗 五、 将商品直达链接反填至 NotionNext
 
 当你在 LDstore 成功发布商品后：
-1. 打开该商品页面，复制浏览器地址栏的完整商品链接（例如：`https://ldcstore.com/goods/xxxxx`）；
+1. 打开该商品页面，复制浏览器地址栏的完整商品链接（例如：`https://ldcstore.com/product/xxxxx`）；
 2. 前往 **Vercel 控制台** -> 你的项目（NotionNext）-> **Settings** -> **Environment Variables**；
 3. 添加或修改以下环境变量：
    ```env
-   NEXT_PUBLIC_INVITATION_STORE_URL=https://ldcstore.com/goods/你的商品ID
+   NEXT_PUBLIC_INVITATION_STORE_URL=https://ldcstore.com/product/你的商品ID
    NEXT_PUBLIC_INVITATION_PRICE_LDC=99
    ```
 4. 触发 Redeploy（或等待自动部署生效）。
