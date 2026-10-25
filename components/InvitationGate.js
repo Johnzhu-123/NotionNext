@@ -2,6 +2,7 @@ import { siteConfig } from '@/lib/config'
 import { isBrowser } from '@/lib/utils'
 import { SignUp } from '@clerk/nextjs'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 
 /**
@@ -11,6 +12,15 @@ import { useEffect, useRef, useState } from 'react'
  * 3. 验证通过后展示 Clerk <SignUp /> 注册组件
  */
 export default function InvitationGate(props) {
+  const router = useRouter()
+  const redirectUrl =
+    typeof router?.query?.redirect_url === 'string'
+      ? router.query.redirect_url
+      : ''
+  const signInUrl = redirectUrl
+    ? `/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`
+    : '/sign-in'
+
   const inputRef = useRef(null)
   const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
@@ -161,7 +171,11 @@ export default function InvitationGate(props) {
         )}
 
         {enableClerk ? (
-          <SignUp />
+          <SignUp
+            signInUrl={signInUrl}
+            fallbackRedirectUrl={redirectUrl || '/'}
+            forceRedirectUrl={redirectUrl || undefined}
+          />
         ) : (
           <div className='p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-xl text-center text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700 w-full'>
             <p className='text-sm font-medium'>尚未配置 Clerk 鉴权组件</p>
@@ -282,7 +296,7 @@ export default function InvitationGate(props) {
         {/* 底部极简双入口：已有账号直接登录 | 获取专属邀请码 */}
         <div className='mt-8 pt-5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400'>
           <Link
-            href='/sign-in'
+            href={signInUrl}
             className='hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium'>
             已有账号？直接登录
           </Link>

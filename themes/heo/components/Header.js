@@ -187,7 +187,7 @@ const Header = props => {
               <>
                 <SignedOut>
                   <div className='flex-shrink-0 flex items-center rounded-xl bg-gray-100 hover:bg-gray-200/80 dark:bg-gray-800 dark:hover:bg-gray-700/80 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors p-0.5 sm:px-1'>
-                    <SignInButton mode='modal'>
+                    <SignInButton mode='modal' signUpUrl='/sign-up'>
                       <button
                         type='button'
                         className='px-2 py-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors whitespace-nowrap'>

@@ -507,7 +507,25 @@ const LayoutSignIn = () => {
 
   return (
     <main className='flex flex-grow justify-center px-5 py-16'>
-      {enableClerk && <SignIn />}
+      {enableClerk && (
+        <SignIn
+          signUpUrl={
+            typeof useRouter().query?.redirect_url === 'string'
+              ? `/sign-up?redirect_url=${encodeURIComponent(useRouter().query.redirect_url)}`
+              : '/sign-up'
+          }
+          fallbackRedirectUrl={
+            typeof useRouter().query?.redirect_url === 'string'
+              ? useRouter().query.redirect_url
+              : '/'
+          }
+          forceRedirectUrl={
+            typeof useRouter().query?.redirect_url === 'string'
+              ? useRouter().query.redirect_url
+              : undefined
+          }
+        />
+      )}
     </main>
   )
 }
