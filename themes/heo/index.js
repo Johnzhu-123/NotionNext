@@ -44,7 +44,6 @@ import CONFIG from './config'
 import { Style } from './style'
 import AISummary from '@/components/AISummary'
 import ArticleExpirationNotice from '@/components/ArticleExpirationNotice'
-import ActivationGateModal from '@/components/ActivationGateModal'
 import InvitationGate from '@/components/InvitationGate'
 import Link from 'next/link'
 import { SignIn } from '@clerk/nextjs'
@@ -64,8 +63,6 @@ const LayoutBase = props => {
 
   const headerSlot = (
     <header>
-      {/* 开图通行证未激活强制拦截门禁 */}
-      <ActivationGateModal {...props} />
       {/* 顶部导航 */}
       <Header {...props} />
 
@@ -518,29 +515,7 @@ const LayoutSignIn = () => {
     : '/sign-up'
 
   return (
-    <main className='flex flex-grow flex-col items-center justify-center px-5 py-12'>
-      {/* 针对未购码新用户的醒目拦截与注册引导 */}
-      <div className='w-full max-w-[400px] mb-4 p-4 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed shadow-sm'>
-        <div className='flex items-center space-x-1.5 font-bold mb-1'>
-          <svg className='w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-            <path fillRule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
-          </svg>
-          <span>特别提示：专属邀请注册制</span>
-        </div>
-        <p className='text-[11.5px] opacity-90 mb-1.5'>
-          2026年9月23日之前注册的老用户可直接使用 LINUX DO 登录畅享所有权限。
-        </p>
-        <p className='text-[11.5px]'>
-          2026年9月23日之后新注册的用户实行 99 LDC 专属邀请码准入制。若您是新用户，请先前往{' '}
-          <Link
-            href={signUpUrl}
-            className='font-bold text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:opacity-80'>
-            注册页面
-          </Link>{' '}
-          获取并输入邀请码。
-        </p>
-      </div>
-
+    <main className='flex flex-grow justify-center px-5 py-16'>
       {enableClerk && (
         <SignIn
           signUpUrl={signUpUrl}
