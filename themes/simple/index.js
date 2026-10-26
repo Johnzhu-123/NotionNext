@@ -352,7 +352,12 @@ const LayoutTagIndex = props => {
   )
 }
 
+const LayoutSignIn = () => null
+const LayoutSignUp = () => null
+
 export {
+  LayoutSignIn,
+  LayoutSignUp,
   Layout404,
   LayoutArchive,
   LayoutBase,

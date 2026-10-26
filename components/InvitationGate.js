@@ -1,6 +1,6 @@
 import { siteConfig } from '@/lib/config'
 import { isBrowser } from '@/lib/utils'
-import { SignUp, useUser } from '@clerk/nextjs'
+import { SignUp } from '@clerk/nextjs'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
@@ -22,7 +22,6 @@ export default function InvitationGate(props) {
     : '/sign-in'
 
   const inputRef = useRef(null)
-  const { user } = enableClerk ? useUser() : { user: null }
   const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
   const isEnabled = siteConfig(
@@ -72,7 +71,6 @@ export default function InvitationGate(props) {
           if (data?.verified) {
             setIsVerified(true)
             sessionStorage.setItem('notion_invite_verified', 'true')
-          sessionStorage.setItem('notion_verified_code', inviteCode.trim().toUpperCase())
           }
         })
         .catch(() => {})
@@ -148,44 +146,6 @@ export default function InvitationGate(props) {
       setIsLoading(false)
     }
   }
-
-  
-  // 注册完成后自动激活通行证
-  useEffect(() => {
-    if (user && isVerified) {
-      const code =
-        inviteCode.trim() ||
-        (isBrowser ? sessionStorage.getItem('notion_verified_code') : '')
-      const meta = user.unsafeMetadata || {}
-      if (code && !meta.is_activated) {
-        fetch('/api/auth/activate-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            code,
-            username: user.username || user.fullName || '',
-            email: user.primaryEmailAddress?.emailAddress || ''
-          })
-        })
-          .then(r => r.json())
-          .then(async data => {
-            if (data.success && typeof user.update === 'function') {
-              await user.update({
-                unsafeMetadata: {
-                  ...user.unsafeMetadata,
-                  is_activated: true,
-                  invite_code: data.invite_code,
-                  signature: data.signature,
-                  activated_at: data.activated_at
-                }
-              })
-            }
-          })
-          .catch(err => console.warn('注册后自动激活通行证异常:', err))
-      }
-    }
-  }, [user, isVerified, inviteCode])
 
   // 初始加载状态
   if (isChecking) {
