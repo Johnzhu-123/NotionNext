@@ -107,13 +107,7 @@ export default function SlideOver(props) {
                                 </span>
                               </div>
                               <div className='grid grid-cols-2 gap-2'>
-                                <SignInButton mode='modal' signUpUrl='/sign-up'>
-                                  <button
-                                    type='button'
-                                    className='w-full py-2.5 px-3 rounded-xl bg-white dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-center'>
-                                    直接登录
-                                  </button>
-                                </SignInButton>
+                                <Link href='/sign-in' onClick={() => setOpen(false)} className='w-full py-2.5 px-3 rounded-xl bg-white dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-center'>直接登录</Link>
                                 <Link
                                   href='/sign-up'
                                   onClick={() => setOpen(false)}
