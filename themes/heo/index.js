@@ -516,20 +516,13 @@ const LayoutSignIn = () => {
 
   return (
     <main className='flex flex-grow justify-center px-5 py-16'>
-      <div className='w-full max-w-md mx-auto'>
+      <div className='w-full max-w-[402px] mx-auto flex flex-col items-center'>
         {/* 温馨提示卡片 */}
-        <div className='mb-4 p-4 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-700 dark:text-indigo-300 flex items-center justify-between'>
-          <div className='flex items-center space-x-2'>
-            <svg className='w-4 h-4 shrink-0 text-indigo-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
-            </svg>
-            <span>已有账号请直接登录；未注册请先核验注册码</span>
-          </div>
-          <Link
-            href={signUpUrl}
-            className='text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0 ml-2'>
-            去注册 &gt;
-          </Link>
+        <div className='mb-4 w-full px-4 py-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-700 dark:text-indigo-300 flex items-center justify-center space-x-1.5 shadow-sm text-center'>
+          <svg className='w-4 h-4 shrink-0 text-indigo-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+          </svg>
+          <span>已有账号请直接登录；未注册请先核验注册码</span>
         </div>
 
         {enableClerk && (
