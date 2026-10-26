@@ -528,10 +528,10 @@ const LayoutSignIn = () => {
           <span>特别提示：专属邀请注册制</span>
         </div>
         <p className='text-[11.5px] opacity-90 mb-1.5'>
-          本站实行 99 LDC 专属邀请码准入制。「使用 LINUX DO 登录」仅限已持有开图通行证的正式用户。
+          2026年9月23日之前注册的老用户可直接使用 LINUX DO 登录畅享所有权限。
         </p>
         <p className='text-[11.5px]'>
-          若您尚未获得邀请码，直接登录将无法激活通行证权限。请先前往{' '}
+          2026年9月23日之后新注册的用户实行 99 LDC 专属邀请码准入制。若您是新用户，请先前往{' '}
           <Link
             href={signUpUrl}
             className='font-bold text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:opacity-80'>

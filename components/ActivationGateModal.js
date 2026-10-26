@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from 'react'
 
 /**
  * 全局开图通行证激活门禁弹窗 (ActivationGateModal)
- * 彻底封堵未购码用户通过登录页第三方 OAuth（如 LINUX DO）绕过注册门禁的问题。
- * 只要检测到已登录账号未持有激活签名，立即强制全屏拦截并要求输入/购买邀请码。
+ * 规则：
+ * 1. 2026年9月23日之前的已注册老用户：不要求绑定开图通行证，自动放行所有权限。
+ * 2. 2026年9月23日之后的新注册用户：必须绑定开图通行证专属邀请码方可使用。
  */
 export default function ActivationGateModal(props) {
   const enableClerk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
@@ -58,7 +59,7 @@ export default function ActivationGateModal(props) {
       return
     }
 
-    // 管理员免激活
+    // 1. 管理员免激活
     const email = user.primaryEmailAddress?.emailAddress?.toLowerCase()
     if (email === 'shuiwu@jxnu.edu.cn') {
       setIsActivated(true)
@@ -66,20 +67,42 @@ export default function ActivationGateModal(props) {
       return
     }
 
-    // 检查前端缓存/元数据
+    // 2. 核心规则：2026年9月23日之前（即 2026-09-24 00:00:00 UTC+8 之前）注册的老用户自动放行！
+    const CUTOFF_TIMESTAMP = 1790179200000 // 2026-09-24 00:00:00 UTC+8
+    const createdAtTime = user.createdAt ? new Date(user.createdAt).getTime() : 0
     const meta = user.unsafeMetadata || {}
+
+    if ((createdAtTime > 0 && createdAtTime < CUTOFF_TIMESTAMP) || meta.is_grandfathered === true) {
+      setIsActivated(true)
+      setIsChecking(false)
+      // 若尚未打标，静默同步老用户放行标记
+      if (!meta.is_activated && typeof user.update === 'function') {
+        user.update({
+          unsafeMetadata: {
+            ...meta,
+            is_activated: true,
+            is_grandfathered: true,
+            activated_at: createdAtTime || Date.now()
+          }
+        }).catch(() => {})
+      }
+      return
+    }
+
+    // 3. 检查前端元数据中是否已有有效激活签名
     if (meta.is_activated === true && meta.signature) {
       setIsActivated(true)
       setIsChecking(false)
       return
     }
 
-    // 若本地没有有效签名，请求服务端核验
+    // 4. 若本地没有有效签名，向服务端核验
     const checkServerStatus = async () => {
       try {
         const query = new URLSearchParams({
           userId: user.id,
           email: email || '',
+          createdAt: String(createdAtTime),
           signature: meta.signature || '',
           inviteCode: meta.invite_code || ''
         })
@@ -92,7 +115,6 @@ export default function ActivationGateModal(props) {
         }
       } catch (err) {
         console.warn('检查用户激活状态失败:', err)
-        // 容错：如果网络临时故障，不强杀
         setIsActivated(false)
       } finally {
         setIsChecking(false)
@@ -116,6 +138,7 @@ export default function ActivationGateModal(props) {
     setErrorMsg('')
 
     try {
+      const createdAtTime = user.createdAt ? new Date(user.createdAt).getTime() : 0
       const res = await fetch('/api/auth/activate-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,14 +146,14 @@ export default function ActivationGateModal(props) {
           userId: user.id,
           code: inviteCode.trim(),
           username: user.username || user.fullName || '',
-          email: user.primaryEmailAddress?.emailAddress || ''
+          email: user.primaryEmailAddress?.emailAddress || '',
+          createdAt: createdAtTime
         })
       })
 
       const data = await res.json()
 
       if (data.success && data.is_activated) {
-        // 同步更新 Clerk 用户元数据
         if (typeof user.update === 'function') {
           try {
             await user.update({
@@ -175,7 +198,7 @@ export default function ActivationGateModal(props) {
         className={`w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-amber-200/80 dark:border-amber-500/30 overflow-hidden transform transition-all ${
           shake ? 'animate-shake' : ''
         }`}>
-        {/* 顶部黄色预警装饰条 */}
+        {/* 顶部预警条 */}
         <div className='h-2 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500' />
 
         <div className='p-6 sm:p-8'>
@@ -201,20 +224,20 @@ export default function ActivationGateModal(props) {
                 </span>
               </div>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>
-                {user?.fullName || user?.username || '用户'}，您需要绑定有效邀请码方可使用
+                {user?.fullName || user?.username || '用户'}，2026年9月23日之后注册账号需绑定邀请码
               </p>
             </div>
           </div>
 
-          {/* 漏洞拦截与说明文案 */}
+          {/* 准入规则说明 */}
           <div className='p-3.5 mb-5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed'>
-            <p className='font-medium mb-1'>🔒 本站实行专属邀请准入制：</p>
+            <p className='font-medium mb-1'>🔒 通行证准入管理规则：</p>
             <p className='text-[11.5px] opacity-90'>
-              检测到您当前账号尚未绑定有效的开图通行证激活码。根据网站管理规则，未绑定邀请码的账号无法访问专享文献资源与导航功能。
+              2026年9月23日之前的已注册用户已自动免除限制；2026年9月23日之后新注册的用户必须绑定一枚有效专属邀请码方可使用专享文献与导航。
             </p>
           </div>
 
-          {/* LDstore 购买通道卡片 */}
+          {/* LDstore 购买通道 */}
           <div className='mb-5 p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/60 flex items-center justify-between'>
             <div>
               <div className='flex items-center space-x-1.5'>

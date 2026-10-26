@@ -7,7 +7,9 @@ import { verifyInviteCode, signUserActivation, verifyUserActivation } from '@/li
 
 /**
  * 开图通行证用户激活 API
- * 校验邀请码并将通行证数字签名与该用户永久绑定
+ * 规则：
+ * 1. 2026年9月23日之前注册的老用户免除激活，自动放行。
+ * 2. 2026年9月23日之后新注册的用户必须校验邀请码并绑定签名。
  */
 export default async function handler(req, res) {
   // 跨域支持 (支持 openlib.seeyjys.eu.org)
@@ -40,6 +42,9 @@ export default async function handler(req, res) {
     BLOG.INVITATION_PRICE_LDC ||
     99
 
+  // 2026-09-24 00:00:00 (UTC+8) 截止时间戳
+  const CUTOFF_TIMESTAMP = 1790179200000
+
   // 管理员账号自动免除邀请码激活
   const ADMIN_EMAILS = ['shuiwu@jxnu.edu.cn']
 
@@ -54,17 +59,26 @@ export default async function handler(req, res) {
 
   // GET: 检查当前用户是否已激活
   if (req.method === 'GET') {
-    const { userId, email, signature, inviteCode } = req.query || {}
+    const { userId, email, signature, inviteCode, createdAt } = req.query || {}
 
+    // 1. 管理员免激活
     if (email && ADMIN_EMAILS.includes(email.toLowerCase())) {
       return res.status(200).json({ is_activated: true, isAdmin: true })
+    }
+
+    // 2. 2026年9月23日之前的老用户免激活
+    if (createdAt) {
+      const createdTime = Number(createdAt) || new Date(createdAt).getTime()
+      if (createdTime > 0 && createdTime < CUTOFF_TIMESTAMP) {
+        return res.status(200).json({ is_activated: true, isGrandfathered: true })
+      }
     }
 
     if (!userId) {
       return res.status(400).json({ is_activated: false, message: '缺少 userId 参数' })
     }
 
-    // 1. 若客户端携带了合法签名，直接常数时间验证
+    // 3. 校验客户端签名
     if (signature && inviteCode) {
       const isValidSig = verifyUserActivation(userId, inviteCode, signature)
       if (isValidSig) {
@@ -72,7 +86,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. 若配置了 Redis，从 Redis 查询激活记录
+    // 4. Redis 激活记录查询
     if (BLOG.REDIS_URL) {
       try {
         const { redisClient } = await import('@/lib/cache/redis_cache')
@@ -93,7 +107,7 @@ export default async function handler(req, res) {
 
   // POST: 提交邀请码激活该账号
   if (req.method === 'POST') {
-    const { userId, code, username, email } = req.body || {}
+    const { userId, code, username, email, createdAt } = req.body || {}
 
     // 管理员账号免激活
     if (email && ADMIN_EMAILS.includes(email.toLowerCase())) {
@@ -106,6 +120,23 @@ export default async function handler(req, res) {
         activated_at: Date.now(),
         message: '管理员账号已直接免激活'
       })
+    }
+
+    // 老用户免激活直接签发放行凭证
+    if (createdAt) {
+      const createdTime = Number(createdAt) || new Date(createdAt).getTime()
+      if (createdTime > 0 && createdTime < CUTOFF_TIMESTAMP) {
+        const grandSignature = signUserActivation(userId, 'LEGACY_USER')
+        return res.status(200).json({
+          success: true,
+          is_activated: true,
+          isGrandfathered: true,
+          invite_code: 'LEGACY_USER',
+          signature: grandSignature,
+          activated_at: createdTime,
+          message: '2026年9月23日前老用户免激活放行'
+        })
+      }
     }
 
     if (!userId || typeof userId !== 'string' || !userId.trim()) {
@@ -142,7 +173,6 @@ export default async function handler(req, res) {
             const usedRecord = await redisClient.get(usedKey)
             if (usedRecord) {
               const parsed = JSON.parse(usedRecord)
-              // 如果已经被其他用户使用
               if (parsed.userId && parsed.userId !== userId) {
                 return res.status(400).json({
                   success: false,
@@ -154,7 +184,6 @@ export default async function handler(req, res) {
                 })
               }
             }
-            // 标记已使用并绑定此用户
             await redisClient.set(
               usedKey,
               JSON.stringify({ userId, usedAt: Date.now(), username }),
